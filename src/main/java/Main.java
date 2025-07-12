@@ -1,5 +1,7 @@
 package main.java;
 
+import java.lang.reflect.Array;
+import java.net.StandardSocketOptions;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,9 +38,9 @@ public class Main {
         System.out.println(isAnagramBySort("Hello", "World"));            // false
 
 
-        int[] nums = {0, 1, 0, 3, 12};
-        moveZerosToEnd(nums);
-        System.out.println(Arrays.toString(nums)); // [1, 3, 12, 0, 0]
+        int[] numArr = {0, 1, 0, 3, 12};
+        moveZerosToEnd(numArr);
+        System.out.println(Arrays.toString(numArr)); // [1, 3, 12, 0, 0]
 
 
         identifyRepeatWord();
@@ -46,6 +48,28 @@ public class Main {
 
         int num = 3; // You can change this input
         System.out.println(bracketCombinations(num)); // Output: 5
+
+        findMaxValue();
+        findMaxValueStream();
+
+        String[] names = {"Jay", "Ray", "Jay", "May", "Kay","Nay","Nay"};
+        System.out.println("Unique Names in Array"+Arrays.toString(Arrays.stream(names).distinct().toArray(String[]::new)));
+
+
+        System.out.println("Delete Repeated word from Array"+Arrays.toString(Arrays.stream(names).filter(word -> Arrays.stream(names).filter(word::equals).count() == 1).toArray(String[]::new)));
+
+        int[] nums = {3, 7, 0, 0, 2, 9, 5, 8, 0, 7};
+        System.out.println("Move Zeros to End"+Arrays.toString(
+                Arrays.stream(nums)
+                        .boxed()  // Convert to Integer stream for better sorting control
+                        .sorted((a, b) -> {
+                            if (a == 0 && b != 0) return 1;    // Move zero to end
+                            else if (a != 0 && b == 0) return -1; // Keep non-zero first
+                            else return 0;                     // Maintain original order
+                        })
+                        .mapToInt(Integer::intValue)  // Convert back to primitive
+                        .toArray()
+        ));
     }
 
     public static void reverseMyName(String inputName){
@@ -89,6 +113,25 @@ public class Main {
         System.out.println(Arrays.toString(names));
         System.out.println(seen);
         System.out.println(set);
+
+        Map<String, Long> nameCounts = Arrays.stream(names)
+                .collect(Collectors.groupingBy(
+                        name -> name,
+                        Collectors.counting()
+                ));
+        List<String> duplicates = Arrays.stream(names)
+                .filter(name -> nameCounts.get(name) > 1)
+                .collect(Collectors.toList());
+
+        List<String> uniques = Arrays.stream(names)
+                .filter(name -> nameCounts.get(name) == 1)
+                .collect(Collectors.toList());
+
+        List<String> finalResult = new ArrayList<>();
+        finalResult.addAll(duplicates);
+        finalResult.addAll(uniques);
+
+        System.out.println("Duplicated Names First"+Arrays.toString(finalResult.toString().toCharArray()));
 
     }
 
@@ -139,4 +182,25 @@ public class Main {
         }
         return result;
     }
+
+    public static void  findMaxValue(){
+        int[] arr = {3, 7, 2, 9, 5};
+        int maxValue = arr[0];
+        for(int i=0; i<=arr.length-1; i++){
+            if (arr[i] > maxValue){
+                maxValue = arr[i];
+            }
+        }
+        System.out.println("The max value is: "+maxValue);
     }
+
+    public static void  findMaxValueStream() {
+        int[] arr = {3, 7, 2, 9, 5};
+        int max = Arrays.stream(arr).max().orElse(Integer.MIN_VALUE);
+        int min = Arrays.stream(arr).min().orElse(Integer.MAX_VALUE);
+        System.out.println("Array Natural Ordered :"+Arrays.stream(arr).boxed().sorted(Comparator.naturalOrder()).collect(Collectors.toList()));
+        System.out.println("Array Reverse Ordered :"+Arrays.stream(arr).boxed().sorted(Comparator.reverseOrder()).collect(Collectors.toList()));
+        System.out.println("The min value is: " + min);
+        System.out.println("The max value is: " + max);
+    }
+}
